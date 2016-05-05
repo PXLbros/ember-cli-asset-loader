@@ -89,10 +89,10 @@ test('it can load audio', function(assert) {
     let done    = assert.async();
     // Define sources
     let sources = [
-        { type: 'audio/mp3', src: 'http://media.w3.org/2010/07/bunny/04-Death_Becomes_Fur.mp3' },
-        { type: 'audio/mp4', src: 'http://media.w3.org/2010/07/bunny/04-Death_Becomes_Fur.mp4' },
-        { type: 'audio/ogg', src: 'http://media.w3.org/2010/07/bunny/04-Death_Becomes_Fur.oga' },
-        { type: 'audio/wav', src: 'http://media.w3.org/2010/07/bunny/04-Death_Becomes_Fur.wav' }
+        { type: 'audio/mp3', src: '/music.mp3' },
+        { type: 'audio/mp4', src: '/music.mp4' },
+        { type: 'audio/ogg', src: '/music.oga' },
+        { type: 'audio/wav', src: '/music.wav' }
     ];
 
     service.loadAudio(sources).then(audio => {
@@ -110,7 +110,7 @@ test('it can load audio', function(assert) {
 
 // Add test for failing audio
 
-// Test what happens when the service can not load the image
+// Test loading the youtube api script
 test('it loads the youtube script', function(assert) {
     let service = this.subject();
     // This test is async
@@ -127,4 +127,33 @@ test('it loads the youtube script', function(assert) {
         assert.ok(false);
         done();
     });
+});
+
+// Test loading the facebook api script
+test('it loads the facebook script', function(assert) {
+    let service = this.subject();
+    // This test is async
+    let done    = assert.async();
+
+    // Call loadYoutubeApi
+    service.loadFacebookApi().then(fb => {
+        // Assert the promise returns false
+        assert.ok(fb);
+        done();
+    }, () => {
+        // This promise should never fail so fail the test if it does
+        assert.ok(false);
+        done();
+    });
+});
+
+// Test what happens when the service can not load the image
+test('it loads fonts', function(assert) {
+    let service = this.subject();
+    // This test is async
+    //let done    = assert.async();
+
+    let wf = service.loadFonts({});
+    console.log(wf);
+    assert.ok(wf);
 });

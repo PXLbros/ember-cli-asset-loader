@@ -1,6 +1,7 @@
-/* globals YT */
+/* globals YT, FB */
 
 import Ember from 'ember';
+import WebFont from 'webfontloader';
 
 function loadMedia(sources, tag) {
     return new Ember.RSVP.Promise(res => {
@@ -19,6 +20,7 @@ function loadMedia(sources, tag) {
 
         // Bind loaded func
         element.addEventListener('canplaythrough', () => {
+            element.volume = 1;
             res(element);
         }, true);
 
@@ -33,6 +35,7 @@ function loadMedia(sources, tag) {
         element.addEventListener('invalid', errorFunc, true);
 
         // Trigger element loading
+        element.volume = 0;
         element.load();
         element.play();
     });
@@ -88,5 +91,45 @@ export default Ember.Service.extend({
 
             window.onYouTubeIframeAPIReady = () => { res(YT); };
         });
+    },
+
+    /**
+     @method loadFacebookApi Loads the facebook api script
+     @return {Promise} promise
+     */
+    loadFacebookApi(appId) {
+        return new Ember.RSVP.Promise(res => {
+            if (Ember.$('#fb-root').length === 0) {
+                Ember.$('body').append('<div id="fb-root"></div>');
+            }
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId      : appId || '',
+                    xfbml      : true,
+                    version    : 'v2.1'
+                });
+                Ember.run(function(){
+                    res(FB);
+                });
+            };
+
+            (function(d, s, id){
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) {return;}
+                js = d.createElement(s); js.id = id;
+                js.src = "//connect.facebook.net/en_US/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+                js.onerror = () => { res(false); };
+             }(document, 'script', 'facebook-jssdk'));
+        });
+    },
+
+    /**
+     @method loadFonts Loads fonts using webfontloader
+     @param {Object} config Config object for webfont loader
+     */
+    loadFonts(/*config*/) {
+        WebFont.load();
+        return WebFont;
     }
 });
