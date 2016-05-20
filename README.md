@@ -1,9 +1,9 @@
 # Ember-cli-asset-loader
 
-The easiest way to preload assets for a route is to import the Preload route from the addon and include an assets property.
+The easiest way to preload assets for a route is to import the `Preload` route from the addon and include an `assets` property.
 The defined assets will be loaded during the route's `beforeModel` hook.
 
-```
+```JavaScript
 import Preload from 'ember-cli-asset-loader/routes/preload';
 
 export default Preload.extend({
