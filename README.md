@@ -41,3 +41,27 @@ export default Preload.extend({
     }
 });
 ```
+
+You can also inject the `assetLoader` service and manualy load assets.
+
+```JavaScript
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+    // Inject the asset loader service
+    assetLoader: Ember.inject.service(),
+
+    beforeModel() {
+        assetLoader = this.get('assetLoader');
+        return assetLoader.loadImage({ name: 'starry_night', src: '/starry_night.jpg' });
+    }
+});
+```
+
+When you define an asset for preloading, you can assign it a name and access it later in your templates with the provided helper.
+
+```Handlebars
+{{loaded-asset 'trailer' class="test" autoplay="true" controls="true" clone=false}}
+```
+
+By default the `loaded-asset` helper will clone the element and return a copy. This is fine for resources that the browser caches and will not re-load like images, but for audio or video you will most likely want to set the `clone` attribute to `false` so that the original preloaded element will be inserted into the DOM. However if you don't clone the element you will only be able to use it once unless you clone it the next time you try to access it.
