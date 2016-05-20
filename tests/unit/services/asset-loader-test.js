@@ -17,16 +17,16 @@ test('it loads images', function(assert) {
     // This test is async
     let done    = assert.async();
     // Set path of demo image
-    let imgPath = '/starry_night.jpg';
+    let image = { name: 'starry_night', src: '/starry_night.jpg' };
 
     // Call loadImage
-    service.loadImage(imgPath).then(img => {
+    service.loadImage(image).then(img => {
         // Assert the image object is returned
         assert.ok(img);
         // Assert the image has completed loading
         assert.ok(img.complete);
         // Assert that the returned image src contains the original provided image path
-        assert.ok(img.src.indexOf(imgPath) !== -1);
+        assert.ok(img.src.indexOf(image.src) !== -1);
         done();
     }, () => {
         // This promise should never fail so fail the test if it does
@@ -61,13 +61,16 @@ test('it can load videos', function(assert) {
     // This test is async
     let done    = assert.async();
     // Define sources
-    let sources = [
-        { type: 'video/mp4',  src: '/trailer.mp4'  },
-        { type: 'video/ogg',  src: '/trailer.ogv'  },
-        { type: 'video/webm', src: '/trailer.webm' }
-    ];
+    let source = {
+        name: 'trailer',
+        sources: [
+            { type: 'video/webm', src: '/trailer.webm' },
+            { type: 'video/mp4',  src: '/trailer.mp4'  },
+            { type: 'video/ogg',  src: '/trailer.ogv'  }
+        ]
+    };
 
-    service.loadVideo(sources).then(video => {
+    service.loadVideo(source).then(video => {
         // Make sure that the promies returns the right object
         assert.ok(video);
         // Make sure the video has enough data to play per: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
@@ -80,7 +83,9 @@ test('it can load videos', function(assert) {
     });
 });
 
-// Add test for failing video
+/**
+ * @todo Add test for failing video
+ */
 
 // Test loading of audio
 test('it can load audio', function(assert) {
@@ -88,14 +93,17 @@ test('it can load audio', function(assert) {
     // This test is async
     let done    = assert.async();
     // Define sources
-    let sources = [
-        { type: 'audio/mp3', src: '/music.mp3' },
-        { type: 'audio/mp4', src: '/music.mp4' },
-        { type: 'audio/ogg', src: '/music.oga' },
-        { type: 'audio/wav', src: '/music.wav' }
-    ];
+    let source = {
+        name: 'music',
+        sources: [
+            { type: 'audio/mp3', src: '/music.mp3' },
+            { type: 'audio/mp4', src: '/music.mp4' },
+            { type: 'audio/ogg', src: '/music.oga' },
+            { type: 'audio/wav', src: '/music.wav' }
+        ]
+    };
 
-    service.loadAudio(sources).then(audio => {
+    service.loadAudio(source).then(audio => {
         // Make sure that the promies returns the right object
         assert.ok(audio);
         // Make sure the video has enough data to play per: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
@@ -108,7 +116,9 @@ test('it can load audio', function(assert) {
     });
 });
 
-// Add test for failing audio
+/**
+ * @todo Add test for failing audio
+ */
 
 // Test loading the youtube api script
 test('it loads the youtube script', function(assert) {
@@ -147,13 +157,49 @@ test('it loads the facebook script', function(assert) {
     });
 });
 
-// Test what happens when the service can not load the image
+/**
+ * @todo Not sure how to force a failure of the facebook load script
+ */
+
+// Make sure it loads fonts
 test('it loads fonts', function(assert) {
     let service = this.subject();
     // This test is async
-    //let done    = assert.async();
+    let done    = assert.async();
 
-    let wf = service.loadFonts({});
-    console.log(wf);
-    assert.ok(wf);
+    // Call loadFonts with known working font
+    service.loadFonts({
+        google: {
+            families: ['Droid Sans', 'Droid Serif']
+        }
+    }).then(() => {
+        // Check that the HTML is recieving the correct classes to indicate success as per webfontloader
+        assert.ok($('html').hasClass('wf-droidsans-n4-active wf-droidserif-n4-active wf-active'));
+        done();
+    }, () => {
+        // This promise should never fail so fail the test if it does
+        assert.ok(false);
+        done();
+    });
+});
+
+// Make sure you can retrieve loaded assets
+test('can look up loaded assets', function(assert) {
+    let service = this.subject();
+    // This test is async
+    let done    = assert.async();
+
+    let image   = { name: 'starry_night', src: '/starry_night.jpg' };
+
+    service.loadImage(image).then(img => {
+        // Make sure we can retrieve the loaded image
+        let loadedImage = service.getLoadedAsset('starry_night');
+        assert.equal(img, loadedImage);
+
+        done();
+    }, () => {
+        // This promise should never fail so fail the test if it does
+        assert.ok(false);
+        done();
+    });
 });

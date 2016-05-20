@@ -1,79 +1,120 @@
-/* globals YT, FB */
+/* globals YT, FB, WebFont */
 
 import Ember from 'ember';
-import WebFont from 'webfontloader';
 
-function loadMedia(sources, tag) {
-    return new Ember.RSVP.Promise(res => {
-        // Create video element
-        let element = document.createElement(tag);
+// Define map for holding loaded assets
+let loadedAssets = new Ember.Map();
 
-        // Loop through all sources and add them to the element element
-        sources.forEach(source => {
-            // Create source element
-            let sourceElement  = document.createElement('source');
-            sourceElement.src  = source.src;
-            sourceElement.type = source.type;
-            // Append source element to element element
-            element.appendChild(sourceElement);
-        });
-
-        // Bind loaded func
-        element.addEventListener('canplaythrough', () => {
-            element.volume = 1;
-            res(element);
-        }, true);
-
-        // Generic error function for failed assets
-        let errorFunc = () => {
-            res(false);
-        };
-
-        // Bind error events
-        element.addEventListener('error',   errorFunc, true);
-        element.addEventListener('abort',   errorFunc, true);
-        element.addEventListener('invalid', errorFunc, true);
-
-        // Trigger element loading
-        element.volume = 0;
-        element.load();
-        element.play();
-    });
+function setLoadedAsset(name, asset) {
+    if(!loadedAssets.has('name')) { loadedAssets.set(name, asset); }
+    else { throw `Asset name must be unique. Asset with name ${name} has already been registered.`; }
 }
 
-export default Ember.Service.extend({
+export default Ember.Service.extend(Ember.Evented, {
+
+    _assetLoaded(assetName, asset) {
+        this.trigger('assetLoaded', assetName, asset);
+    },
+
+
+
+
+    /**
+     @method _loadMedia
+     @param {Array} media
+     @param {String} element Html element to create
+     @return {Promise} promise Resolves when the media has been loaded
+     */
+    _loadMedia(media, tagName) {
+        return new Ember.RSVP.Promise(res => {
+            // Create video element
+            let element = document.createElement(tagName);
+
+            // Loop through all sources and add them to the element element
+            media.sources.forEach(source => {
+                // Create source element
+                let sourceElement  = document.createElement('source');
+                sourceElement.src  = source.src;
+                sourceElement.type = source.type;
+                // Append source element to element element
+                element.appendChild(sourceElement);
+            });
+
+            // Bind loaded func
+            element.addEventListener('canplaythrough', () => {
+                element.pause();
+                element.volume = 1;
+                this._assetLoaded(media.name, element);
+                res(element);
+            }, true);
+
+            // Generic error function for failed assets
+            let errorFunc = () => {
+                this._assetLoaded(media.name, false);
+                res(false);
+            };
+
+            // Bind error events
+            element.addEventListener('error',   errorFunc, true);
+            element.addEventListener('abort',   errorFunc, true);
+            element.addEventListener('invalid', errorFunc, true);
+
+            // Trigger element loading
+            element.load();
+            element.play();
+            element.volume = 0;
+            setLoadedAsset(media.name, element);
+        });
+    },
+
 
     /**
      @method loadImage
      @param {String} path Path to the image asset
      @return {Promise} promise Resolves to the loaded image object or false if the image errors
      */
-    loadImage(path) {
+    loadImage(image) {
         return new Ember.RSVP.Promise(res => {
             let img     = document.createElement('img');
-            img.onload  = () => { res(img); };
-            img.onerror = () => { res(false); };
-            img.src     = path;
+            img.onload  = () => {
+                this._assetLoaded(image.name, img);
+                res(img);
+            };
+            img.onerror = () => {
+                this._assetLoaded(image.name, false);
+                res(false);
+            };
+            img.src     = image.src;
+            setLoadedAsset(image.name, img);
         });
     },
 
+
+
+
     /**
      @method loadVideo
-     @param {Array} sources Array of sources
+     @param {Array} media
      @return {Promise} promise Resolves to the loaded image object of false if the video errors
      */
-    loadVideo(sources) {
-        return loadMedia(sources, 'video');
+    loadVideo(video) {
+        return this._loadMedia(video, 'video');
     },
+
+
+
 
     /**
      @method loadAudio
      @param {Array} sources Array of sources
      @return {Promise} promise Resolves to the loaded image object of false if the video errors
      */
-    loadAudio(sources) {
-        return loadMedia(sources, 'audio');
+    loadAudio(audio) {
+        return this._loadMedia(audio, 'audio');
     },
+
+
+
 
     /**
      @method loadYoutubeApi Loads the youtube api script
@@ -84,14 +125,23 @@ export default Ember.Service.extend({
         return new Ember.RSVP.Promise(res => {
             var tag     = document.createElement('script');
             tag.src     = "https://www.youtube.com/iframe_api";
-            tag.onerror = () => { res(false); };
+            tag.onerror = () => {
+                this._assetLoaded('youtube', false);
+                res(false);
+            };
 
             var firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            window.onYouTubeIframeAPIReady = () => { res(YT); };
+            window.onYouTubeIframeAPIReady = () => {
+                this._assetLoaded('youtube', YT);
+                res(YT);
+            };
         });
     },
+
+
+
 
     /**
      @method loadFacebookApi Loads the facebook api script
@@ -109,6 +159,7 @@ export default Ember.Service.extend({
                     version    : 'v2.1'
                 });
                 Ember.run(function(){
+                    this._assetLoaded('facebook', FB);
                     res(FB);
                 });
             };
@@ -119,17 +170,36 @@ export default Ember.Service.extend({
                 js = d.createElement(s); js.id = id;
                 js.src = "//connect.facebook.net/en_US/sdk.js";
                 fjs.parentNode.insertBefore(js, fjs);
-                js.onerror = () => { res(false); };
+                js.onerror = () => {
+                    this._assetLoaded('facebook', false);
+                    res(false);
+                };
              }(document, 'script', 'facebook-jssdk'));
         });
     },
 
+
+
+
     /**
      @method loadFonts Loads fonts using webfontloader
-     @param {Object} config Config object for webfont loader
+     @param {Object} config Config object for webfontloader
      */
-    loadFonts(/*config*/) {
-        WebFont.load();
-        return WebFont;
+    loadFonts(config) {
+        return new Ember.RSVP.Promise(res => {
+            config.active       = res;
+            config.inactive     = res;
+            WebFont.load(config);
+        });
+    },
+
+
+
+    /**
+     @method getLoadedAsset
+     @param {String} name Name of the asset
+     */
+    getLoadedAsset(name) {
+        return loadedAssets.get(name);
     }
 });
