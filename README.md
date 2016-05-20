@@ -1,27 +1,35 @@
 # Ember-cli-asset-loader
 
-This README outlines the details of collaborating on this Ember addon.
-
-## Installation
-
-* `git clone` this repository
-* `npm install`
-* `bower install`
-
-## Running
-
-* `ember server`
-* Visit your app at http://localhost:4200.
-
-## Running Tests
-
-* `npm test` (Runs `ember try:testall` to test your addon against multiple Ember versions)
-* `ember test`
-* `ember test --server`
-
-## Building
-
-* `ember build`
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
-# ember-cli-asset-loader
+```
+assets: {
+    images: [
+        { name: 'starry_night', src: '/starry_night.jpg' }
+    ],
+    videos: [
+        {
+            name: 'trailer',
+            sources: [
+                { type: 'video/webm', src: '/trailer.webm' },
+                { type: 'video/mp4',  src: '/trailer.mp4'  },
+                { type: 'video/ogg',  src: '/trailer.ogv'  }
+            ]
+        }
+    ],
+    audio: [
+        {
+            name: 'music',
+            sources: [
+                { type: 'audio/mp3', src: '/music.mp3' },
+                { type: 'audio/mp4', src: '/music.mp4' },
+                { type: 'audio/ogg', src: '/music.oga' },
+                { type: 'audio/wav', src: '/music.wav' }
+            ]
+        }
+    ],
+    fonts: {
+        google: {
+            families: ['Droid Sans', 'Droid Serif']
+        }
+    }
+},
+```
