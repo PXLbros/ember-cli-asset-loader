@@ -1,6 +1,6 @@
 # Ember-cli-asset-loader
 
-Sometimes you may want to control the loading of large assets in your app or website to avoid pop in after the templates render. Ember-cli-asset-loader provides you with tools to integrate pre-loading into your ember app's routes. Each of the following functions will return promises that resolve when the asset has loaded. If the asset fails to load, the promise will not reject, but will reslove with the value `false`.
+Sometimes you may want to control the loading of large assets in your app or website to avoid pop in after the templates render. Ember-cli-asset-loader provides you with tools to integrate pre-loading into your ember app's routes.
 
 ## Asset Loader Service
 
@@ -22,7 +22,7 @@ export default Ember.Route.extend({
 
 ### Asset Types
 
-A few asset types are supported and can be loaded with their corresponding functions. A name for each asset is required so that it can be retrieved later.
+A few asset types are supported and can be loaded with their corresponding functions. A name for each asset is required so that it can be retrieved later. Each of the following functions will return promises that resolve when the asset has loaded. If the asset fails to load, the promise will not reject, but will reslove with the value `false`.
 
 #### Images
 
