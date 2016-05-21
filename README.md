@@ -1,5 +1,79 @@
 # Ember-cli-asset-loader
 
+Sometimes you may want to control the loading of large assets in your app or website to avoid pop in after the templates render. Ember-cli-asset-loader provides you with tools to integrate pre-loading into your ember app's routes.
+
+## Asset Loader Service
+
+You can inject the `assetLoader` service and manualy load assets.
+
+```JavaScript
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+    // Inject the asset loader service
+    assetLoader: Ember.inject.service(),
+
+    beforeModel() {
+        assetLoader = this.get('assetLoader');
+        return assetLoader.loadImage({ name: 'starry_night', src: '/starry_night.jpg' });
+    }
+});
+```
+
+### Asset Types
+
+A few asset types are supported and can be loaded with their corresponding functions. A name for each asset is required so that it can be retrieved later.
+
+#### Images
+
+```JavaScript
+assetLoader.loadImage({
+    name: 'starry_night',    // Name for image
+    src: '/starry_night.jpg' // Path to image
+});
+```
+
+#### Videos
+
+```JavaScript
+assetLoader.loadVideo({
+    name: 'trailer', // Name for video
+    sources: [       // Video sources
+        { type: 'video/webm', src: '/trailer.webm' },
+        { type: 'video/mp4',  src: '/trailer.mp4'  },
+        { type: 'video/ogg',  src: '/trailer.ogv'  }
+    ]
+});
+```
+
+#### Audio
+
+```JavaScript
+assetLoader.loadVideo({
+    name: 'music', // Name for audio
+    sources: [     // Audio sources
+        { type: 'audio/mp3', src: '/music.mp3' },
+        { type: 'audio/mp4', src: '/music.mp4' },
+        { type: 'audio/ogg', src: '/music.oga' },
+        { type: 'audio/wav', src: '/music.wav' }
+    ]
+});
+```
+
+#### Fonts
+
+Ember-cli-asset-loader uses [webfontloader](https://github.com/typekit/webfontloader) to load fonts. The first argument to `loadFonts` is a webfontloader config object. The `active` and `inactive` properties will be set for you so that the promise resolves when the fonts are loaded.
+
+```JavaScript
+assetLoader.loadFonts({
+    google: {
+        families: ['Droid Sans', 'Droid Serif']
+    }
+})
+```
+
+## Preload Route
+
 The easiest way to preload assets for a route is to import the `Preload` route from the addon and include an `assets` property.
 The defined assets will be loaded during the route's `beforeModel` hook.
 
@@ -38,22 +112,6 @@ export default Preload.extend({
                 families: ['Droid Sans', 'Droid Serif']
             }
         }
-    }
-});
-```
-
-You can also inject the `assetLoader` service and manualy load assets.
-
-```JavaScript
-import Ember from 'ember';
-
-export default Ember.Route.extend({
-    // Inject the asset loader service
-    assetLoader: Ember.inject.service(),
-
-    beforeModel() {
-        assetLoader = this.get('assetLoader');
-        return assetLoader.loadImage({ name: 'starry_night', src: '/starry_night.jpg' });
     }
 });
 ```
