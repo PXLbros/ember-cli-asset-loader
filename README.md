@@ -49,7 +49,7 @@ assetLoader.loadVideo({
 #### Audio
 
 ```JavaScript
-assetLoader.loadVideo({
+assetLoader.loadAudio({
     name: 'music', // Name for audio
     sources: [     // Audio sources
         { type: 'audio/mp3', src: '/music.mp3' },
