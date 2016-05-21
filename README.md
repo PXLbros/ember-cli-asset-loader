@@ -116,6 +116,8 @@ export default Preload.extend({
 });
 ```
 
+## Retrieving Loaded Assets
+
 When you define an asset for preloading, you can assign it a name and access it later in your templates with the provided helper.
 
 ```Handlebars
