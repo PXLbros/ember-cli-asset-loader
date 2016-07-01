@@ -72,6 +72,22 @@ assetLoader.loadFonts({
 })
 ```
 
+#### Facebook API
+
+You may wish to preload the Facebook API because letting it load asynchronously can cause your UI to become unresponsive.
+
+```JavaScript
+assetLoader.loadFacebookApi('FACEBOOK_APP_ID');
+```
+
+#### YouTube API
+
+You may want the YouTube API to be availible when your controllers and components mount so you can preload it as well.
+
+```JavaScript
+assetLoader.loadYoutubeApi();
+```
+
 ## Preload Route
 
 The easiest way to preload assets for a route is to import the `Preload` route from the addon and include an `assets` property.
