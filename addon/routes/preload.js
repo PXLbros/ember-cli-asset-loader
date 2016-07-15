@@ -18,7 +18,7 @@ export default Ember.Route.extend({
         }
         // Create video promises
         if(assets.videos) {
-            assetCount += assets.videos.length
+            assetCount += assets.videos.length;
         }
         // Create audio promises
         if(assets.audio)  {
@@ -31,7 +31,7 @@ export default Ember.Route.extend({
     _attachLoadEvent: function() {
         let assetLoader         = this.get('assetLoader');
 
-        assetLoader.on('assetLoaded', (assetName, asset) => {
+        assetLoader.on('assetLoaded', (/*assetName, asset*/) => {
             let loadingController   = this.controllerFor(this.get('loadingRoute'));
             loadingController.incrementProperty('loadedAssets');
             console.log(loadingController.get('loadedAssets')/this.get('assetCount'));
@@ -63,7 +63,7 @@ export default Ember.Route.extend({
         }
         // Create video promises
         if(assets.videos) {
-            totalAssets += assets.videos.length
+            totalAssets += assets.videos.length;
             assets.videos.forEach(video => promises.push(assetLoader.loadVideo(video)));
         }
         // Create audio promises
